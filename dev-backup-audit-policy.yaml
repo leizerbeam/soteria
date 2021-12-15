@@ -1,0 +1,20 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: dev-backup-audit-policy
+spec:
+  validationFailureAction: audit
+  rules:
+  - name: dev-backup-audit-policy
+    match:
+      resources:
+        kinds:
+        - Deployment
+        - StatefulSet
+    validate:
+      message: "Development Deployments and StatefulSets should have Data Protection Policies for Readiness Testing (use labels: dataprotection: k10-<policyname>)"
+      pattern:
+        metadata:
+          labels:
+            =(purpose): development
+            dataprotection: k10-?*
