@@ -30,7 +30,8 @@ Initial concept, Soteria v1 implements [Policy Enforcement Point](https://github
 - nginx-deployment.yaml - A valid nginx _Deployment_ with a "dataprotection: k10-goldpolicy" and "immutable: enabled" labels.  
 
 **Demonstration and Expected Output**
-1. Apply _kyvernorbac.yaml_
+First steps involve adding the above policies and Kyverno access rights to perform the demonstration. These examples make use of Kasten K10 K8s CRDs. The gold backup policy is just an example, but represents a pre-approved policy by an organization's Senior IT Staff.
+1. Apply _kyvernorbac.yaml_ 
 2. Apply _prod-backup-enforce-policy.yaml_
 3. Apply _generate-gold-backup-policy.yaml_
 
@@ -39,6 +40,9 @@ clusterrole.rbac.authorization.k8s.io/kyverno:generatecontroller updated
 clusterpolicy.kyverno.io/prod-backup-enforce-policy created
 clusterpolicy.kyverno.io/generate-gold-backup-policy created
 ```
+
+Second step demonstrates a typical behavior, to deploy an application into production without consideration of the data protection compliance policy.  Some feedback is given back to the developer or system integrator to correct the application YAML. In GitOps context, this would also fail to deploy after check-in, though we would want to implement some form of test at integration.
+
 4. Apply nginx-deployment-invalid.yaml
 
 ```
@@ -53,6 +57,7 @@ Data Protection Policies with Immutability Enabled (use labels: dataprotection:
 k10-<policyname> and immutable: enabled). Rule cd-prod-backup-policy 
 failed at path /metadata/labels/immutable/'
 ```
+Third step illustrates a correctly defined application YAML with a pre-vetted data protection policy "gold backup" that also leverages immutable backup targets.
 
 5. Apply nginx-deployment.yaml
 
@@ -60,8 +65,13 @@ failed at path /metadata/labels/immutable/'
 namespace/nginx configured
 deployment.apps/nginx-deployment created
 ```
+Lastly (GUI not show) - open up the K10 GUI and review the auto-generated backup policy.
 
 6. Open K10 Policy UI
+
+This concept can be applied to any data protection solution that uses native K8s Resources or CRD's (ie. Velero).
+
+Send any and all feedback to **joey.lei@veeam.com**!
 
 ## Open Policy Agent Gatekeeper Admission Implementation
 TBD 
