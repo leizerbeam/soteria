@@ -63,5 +63,5 @@ deployment.apps/nginx-deployment created
 
 6. Open K10 Policy UI
 
-##Open Policy Agent Gatekeeper Admission Implementation
+## Open Policy Agent Gatekeeper Admission Implementation
 TBD 
