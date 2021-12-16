@@ -86,6 +86,19 @@ Lastly (GUI not show) - open up the K10 GUI and review the auto-generated backup
 
 6. Open K10 Policy UI
 
+7. (Optiional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed withthe describe command.
+
+```
+% kubectl get policyreport -A                                       
+NAMESPACE   NAME                PASS   FAIL   WARN   ERROR   SKIP   AGE
+default     polr-ns-default     16     3      0      0       0      5d2h
+kasten-io   polr-ns-kasten-io   144    16     0      0       0      5d2h
+nginx       polr-ns-nginx       10     0      0      0       0      103m
+olm         polr-ns-olm         54     3      0      0       0      5d2h
+
+% describe polr polr-ns-nginx | grep "Result: \+fail" -B10
+```
+
 This concept can be applied to any data protection solution that uses native K8s Resources or CRD's (ie. Velero).
 
 Send any and all feedback to **joey.lei@veeam.com**!
