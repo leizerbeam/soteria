@@ -45,26 +45,26 @@ As a result, data protection policies are time-consuming to prepare and resource
 - nginx-deployment.yaml - A valid nginx _Deployment_ with a "dataprotection: k10-goldpolicy" and "immutable: enabled" labels.  
 
 **Demonstration and Expected Output**  
-First steps involve adding Kyverno access rights to perform the demonstration. These policies enforceand generate Kasten K10 K8s CRDs. The enforcement policy looks for the a 'dataprotection' label name of a policy pre-vetted by Senior IT Leadership.  Since these label names are already pre-vetted, we'll go ahead and auto generate them whenever a matching resource is deployed correctly.  The gold backup policy RPO/Retention objectives are just an example, but can be freely modified for your purposes.
-1. Apply _kyvernorbac.yaml_ 
-2. Apply _prod-backup-enforce-policy.yaml_
-3. Apply _generate-gold-backup-policy.yaml_
 
-```
+1. Add Kyverno access rights to perform the demonstration. These policies enforceand generate Kasten K10 K8s CRDs. The enforcement policy looks for the a 'dataprotection' label name of a policy pre-vetted by Senior IT Leadership.  Since these label names are already pre-vetted, we'll go ahead and auto generate them whenever a matching resource is deployed correctly.  The gold backup policy RPO/Retention objectives are just an example, but can be freely modified for your purposes.
+
+```console
+% kubectl apply -f _kyvernorbac.yaml_ 
+% kubectl apply -f _prod-backup-enforce-policy.yaml_
+% kubectl apply -f _generate-gold-backup-policy.yaml_
+
 clusterrole.rbac.authorization.k8s.io/kyverno:generatecontroller updated
 clusterpolicy.kyverno.io/prod-backup-enforce-policy created
 clusterpolicy.kyverno.io/generate-gold-backup-policy created
 ```
 
-Second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlennecked.  
+2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
 
-Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
-
-4. Apply nginx-deployment-invalid.yaml
-
-```
+```console
 % kubectl apply -f nginx-deployment-invalid.yaml 
+
 namespace/nginx created
+
 Error from server: error when creating "nginx-deployment-invalid.yaml": 
 admission webhook "validate.kyverno.svc-fail" denied the request: 
 resource Deployment/nginx/nginx-deployment was blocked due to the 
@@ -74,22 +74,21 @@ Data Protection Policies with Immutability Enabled (use labels: dataprotection:
 k10-<policyname> and immutable: enabled). Rule cd-prod-backup-policy 
 failed at path /metadata/labels/immutable/'
 ```
-Third step illustrates a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.
+3. The third step illustrates a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.
 
-5. Apply nginx-deployment.yaml
+```console
+% kubectl apply -f nginx-deployment.yaml
 
-```
 namespace/nginx configured
 deployment.apps/nginx-deployment created
 ```
-Lastly (GUI not show) - open up the K10 GUI and review the auto-generated backup policy.
+4. Lastly (GUI not show) - open up the K10 GUI and review the auto-generated backup policy.
 
-6. Open K10 Policy UI
+5. (Optional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed withthe describe command.
 
-7. (Optiional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed withthe describe command.
-
-```
+```console
 % kubectl get policyreport -A                                       
+
 NAMESPACE   NAME                PASS   FAIL   WARN   ERROR   SKIP   AGE
 default     polr-ns-default     16     3      0      0       0      5d2h
 kasten-io   polr-ns-kasten-io   144    16     0      0       0      5d2h
