@@ -49,10 +49,11 @@ As a result, data protection policies are time-consuming to prepare and resource
 1. Add Kyverno access rights to perform the demonstration. These policies enforceand generate Kasten K10 K8s CRDs. The enforcement policy looks for the a 'dataprotection' label name of a policy pre-vetted by Senior IT Leadership.  Since these label names are already pre-vetted, we'll go ahead and auto generate them whenever a matching resource is deployed correctly.  The gold backup policy RPO/Retention objectives are just an example, but can be freely modified for your purposes.
 
 ```console
-% kubectl apply -f _kyvernorbac.yaml_ 
-% kubectl apply -f _prod-backup-enforce-policy.yaml_
-% kubectl apply -f _generate-gold-backup-policy.yaml_
-
+kubectl apply -f kyvernorbac.yaml
+kubectl apply -f prod-backup-enforce-policy.yaml
+kubectl apply -f generate-gold-backup-policy.yaml
+```
+```console
 clusterrole.rbac.authorization.k8s.io/kyverno:generatecontroller updated
 clusterpolicy.kyverno.io/prod-backup-enforce-policy created
 clusterpolicy.kyverno.io/generate-gold-backup-policy created
@@ -61,8 +62,9 @@ clusterpolicy.kyverno.io/generate-gold-backup-policy created
 2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
 
 ```console
-% kubectl apply -f nginx-deployment-invalid.yaml 
-
+kubectl apply -f nginx-deployment-invalid.yaml 
+```
+```console
 namespace/nginx created
 
 Error from server: error when creating "nginx-deployment-invalid.yaml": 
@@ -77,8 +79,9 @@ failed at path /metadata/labels/immutable/'
 3. The third step illustrates a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.
 
 ```console
-% kubectl apply -f nginx-deployment.yaml
-
+kubectl apply -f nginx-deployment.yaml
+```
+```console
 namespace/nginx configured
 deployment.apps/nginx-deployment created
 ```
@@ -87,15 +90,17 @@ deployment.apps/nginx-deployment created
 5. (Optional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed withthe describe command.
 
 ```console
-% kubectl get policyreport -A                                       
-
+kubectl get policyreport -A                                       
+```
+```console
 NAMESPACE   NAME                PASS   FAIL   WARN   ERROR   SKIP   AGE
 default     polr-ns-default     16     3      0      0       0      5d2h
 kasten-io   polr-ns-kasten-io   144    16     0      0       0      5d2h
 nginx       polr-ns-nginx       10     0      0      0       0      103m
 olm         polr-ns-olm         54     3      0      0       0      5d2h
-
-% describe polr polr-ns-nginx | grep "Result: \+fail" -B10
+```
+```console
+describe polr polr-ns-nginx | grep "Result: \+fail" -B10
 ```
 
 This concept can be applied to any data protection solution that uses native K8s Resources or CRD's (ie. Velero).
