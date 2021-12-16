@@ -2,7 +2,7 @@
 
 ## What is Soteria?
   
-Soteria is a set of Cloud Native Data Protection Policies using open-source CNCF projects such as OPA Gatekeeper and Kyverno.  In Greek mythology, Soteria is the goddess of safety and salvation, deliverance, and preservation from harm. Translated to an IT context, Soteria aims to enforce the protection of IT infrastructure and data from IT risks such as security incidents (ransomware), disasters (both natural and accidental), human error, and other incidents that would impact the availability of cloud native applications and services.  
+Soteria is a set of K8s Native Data Protection Policies using open source CNCF projects such as OPA Gatekeeper and Kyverno.  In Greek mythology, Soteria is the goddess of safety and salvation, deliverance, and preservation from harm. Translated to an IT context, Soteria aims to enforce the protection of IT infrastructure and data from IT risks such as security incidents (ransomware), disasters (both natural and accidental), human error, and other incidents that would impact the availability of cloud native applications and services.  
   
 Soteria implements the [WG-Policy Management Whitepaper](https://github.com/kubernetes/community/blob/c61508a8651fcb49036188410becc36a3750217b/sig-security/policy/kubernetes-policy-management.md) in a data protection context.
   
@@ -15,7 +15,17 @@ Initial concept, Soteria v1 implements [Policy Enforcement Point](https://github
 ## Why Soteria?
 Many organization’s risk management teams focus on enforcing security policies to help reduce the risk of unauthorized access (breach of confidentiality). However, risk management should take a perspective of all possible impacts on an organization. Data loss for stateful applications – and the resulting opportunity cost of outages and service unavailability – is one risk that’s less commonly discussed with respect to cloud native applications.  
 
-Data protection operations are notoriously manual and heavyweight, but with Cloud Native Policy Engines, there is a brighter future.  As organizations leverage speed and agility as a competitive advantage and ITOps strategies such as GitOps, automated data protection policy enforcement becomes a must for ensuring that autonomous systems can safely deploy to production multiple times a day, week, or month without recourse.
+As organizations leverage speed and agility as a competitive advantage and pursue ITOps strategies such as GitOps, automated data protection policy enforcement becomes a must for ensuring that autonomous systems can safely deploy to production multiple times a day, week, or month without recourse.
+
+Eager developers wanting to get to production quickly may “whip up” a daily cronjob backup script and call it “production-ready.” 
+
+However, battle-hardened IT experts will know that there are many additional risks to consider:
+- Recovery Point Objective (RPO) which limits the amount of acceptable data loss
+- Recovery Time Objective (RTO) the amount of acceptable downtime a service should have
+- Hardening requirements such as immutable backups, a defense against stealthy adversaries who destroy backups in an attempt to deploy ransomware and make infrastructure irrecoverable.
+
+As a result, data protection policies are time-consuming to prepare and resource-intensive to execute. However, with this approach, one can simply consume CIO-approved or community-approved “guardrail” policies and have them applied to one or 1000’s of K8s clusters with ease thanks to K8s native policy engines.
+
 
 ## Kyverno Admission Implementation with Kasten K10
 **Prerequisites:** 
