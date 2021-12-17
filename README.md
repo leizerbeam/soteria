@@ -13,19 +13,14 @@ Initial concept, Soteria v1 implements [Policy Enforcement Point](https://github
 3. During Day 2 runtime (_Implementation TBD_)
 
 ## Why Soteria?
-Many organization’s risk management teams focus on enforcing security policies to help reduce the risk of unauthorized access (breach of confidentiality). However, risk management should take a perspective of all possible impacts on an organization. Data loss for stateful applications – and the resulting opportunity cost of outages and service unavailability – is one risk that’s less commonly discussed with respect to cloud native applications.  
-
-As organizations leverage speed and agility as a competitive advantage and pursue ITOps strategies such as GitOps, automated data protection policy enforcement becomes a must for ensuring that autonomous systems can safely deploy to production multiple times a day, week, or month without recourse.
-
-Eager developers wanting to get to production quickly may “whip up” a daily cronjob backup script and call it “production-ready.” 
+Achieving data protection appears easy.  Let's “whip up” a daily cron job backup script and call it “production-ready.” 
 
 However, battle-hardened IT experts will know that there are many additional risks to consider:
-- Recovery Point Objective (RPO) which limits the amount of acceptable data loss
-- Recovery Time Objective (RTO) the amount of acceptable downtime a service should have
-- Hardening requirements such as immutable backups, a defense against stealthy adversaries who destroy backups in an attempt to deploy ransomware and make infrastructure irrecoverable.
+- The CIO's balance of cost and resources to implement a solution that reduces the acceptable data loss to minutes or hours.
+- The GM's desire to limit financial impact due to downtime of a revenue generating app
+- The CISO's requirement to have immutablity, a defense against ransomware operators who target destruction of backups.
 
-As a result, data protection policies are time-consuming to prepare and resource-intensive to execute. However, with this approach, one can simply consume CIO-approved or community-approved “guardrail” policies and have them applied to one or 1000’s of K8s clusters with ease thanks to K8s native policy engines.
-
+Data protection policies are in fact time-consuming to prepare and resource-intensive to execute. Fortunately, attendees of this talk can have their cake and eat it too. CIO’s will learn to implement a low code, K8s native means of authoring data protection "guardrails" that can be easily consumed by app developers. For maximum effect, this approach can be implemented at scale with IaC/GitOps approaches, for example with Argo or Flux.
 
 ## Kyverno Admission Implementation with Kasten K10
 **Prerequisites:** 
