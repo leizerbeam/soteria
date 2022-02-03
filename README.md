@@ -103,4 +103,70 @@ This concept can be applied to any data protection solution that uses native K8s
 Send any and all feedback to **joey.lei@veeam.com**!
 
 ## Open Policy Agent Gatekeeper Admission Implementation
-TBD 
+
+**Prerequisites:** 
+- Install Gatekeeper (https://open-policy-agent.github.io/gatekeeper/website/docs/install
+
+**Explanation of YAML Files:**  
+- requireLabelsConstraintTemplate.yaml - a simple ConstraintTemplate example to require the existence of labels (to be defined in the Constraint itself)
+- policyConstraintSimpleLabelOnly.yaml - A custom Constraint resource to require all "Deployment" and "StatefulSet" resources contain _dataprotection_ and _immutable_ labels
+- requireDPPolicyConstraintTemplate.yaml - an advanced ConstraintTemplate requiring validation of the values inside _dataprotection_ and _immutable_ labels
+- policyConstraintDataProtection.yaml - a custom Constraint resource that enforces _dataprotection_ starts with "k10" and an immutable is "enabled"
+- nginx-deployment-invalid-missing-labels.yaml - An example nginx _Deployment_ with an invalid data protection policy (fails simple label enforcement)
+- nginx-deployment-improper-definition.yaml - An example nginx _Deployment_ with invalid policy definitions for the policy name and immutability status
+- nginx-deployment.yaml - A valid nginx _Deployment_ with a "dataprotection: k10-goldpolicy" and "immutable: enabled" labels.  
+
+**Demonstration and Expected Output**  
+
+1. Apply the _ConstraintTemplate_ and custom reosurce _DataProtectionRequiredLabels_
+
+```console
+kubectl apply -f requiredLabelsConstraintTemplate.yaml
+kubectl apply -f policyConstraintSimpleLabelOnly.yaml
+```
+```console
+constrainttemplate.templates.gatekeeper.sh/dataprotectionrequiredlabels created
+dataprotectionrequiredlabels.constraints.gatekeeper.sh/prod-must-have-dp-labels created
+```
+2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
+
+```console
+kubectl apply -f nginx-deployment-invalid-missing-labels.yaml 
+```
+```console
+namespace/nginx created
+Error from server ([prod-must-have-dp-labels] you must provide labels: {"dataprotection", "immutable"}): error when creating "nginx-deployment-invalid.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [prod-must-have-dp-labels] you must provide labels: {"dataprotection", "immutable"}
+```
+
+3. We can a more restrictive example and require specific dataprotection label and immutability label to match for example our gold backup policy. With Gatekeeper, the enforcement policy is more customizable due to the fact one needs to code in REGO.  While it makes it longer to get started for a beginner, more complex data protection policies can be enabled vs Kyverno.
+
+```console
+kubectl apply -f requireDPPolicyConstraintTemplate.yaml
+kubectl apply -f policyConstraintDataProtection.yaml   
+```
+```console
+constrainttemplate.templates.gatekeeper.sh/requireddataprotectionpolicy created
+requireddataprotectionpolicy.constraints.gatekeeper.sh/dp-policy-must-be-defined created
+```
+
+4. Next, we'll attempt to deploy the nginx with invalid values for dataprotection and immutable
+
+```console 
+kubectl apply -f nginx-deployment-invalid-improper-definition.yaml
+```
+```console
+namespace/nginx created
+Error from server ([dp-policy-must-be-defined] Forbidden immutability policy: notenabled
+[dp-policy-must-be-defined] Forbidden dataprotection policy: notreal): error when creating "nginx-deployment-invalid-bad-values.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [dp-policy-must-be-defined] Forbidden immutability policy: notenabled
+[dp-policy-must-be-defined] Forbidden dataprotection policy: notreal
+```
+
+5. Lastly, we'll a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.  Unlike Kyverno, Gatekeeper does not yet have an ability to generate other custom resources, so other means need to enable the generation of for example Kasten K10 Policy resources.
+
+```console
+kubectl apply -f nginx-deployment.yaml 
+```
+```console
+namespace/nginx configured
+deployment.apps/nginx-deployment created
+```
