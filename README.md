@@ -2,7 +2,7 @@
 
 ## What is Soteria?
   
-Soteria is a set of K8s Native Data Protection Policies using open source CNCF projects such as OPA Gatekeeper and Kyverno.  In Greek mythology, Soteria is the goddess of safety and salvation, deliverance, and preservation from harm. Translated to an IT context, Soteria aims to enforce the protection of IT infrastructure and data from IT risks such as security incidents (ransomware), disasters (both natural and accidental), human error, and other incidents that would impact the availability of cloud native applications and services.  
+Soteria is a set of K8s Native Data Protection Policies using open source CNCF Kubernetes Native Security Policies OPA Gatekeeper and Kyverno.  In Greek mythology, Soteria is the goddess of safety and salvation, deliverance, and preservation from harm. Translated to an IT context, Soteria aims to **enforce** the protection of IT infrastructure and data from IT risks such as security incidents (ransomware), disasters (both natural and accidental), human error, and other incidents that would impact the availability of cloud native applications and services.  
   
 Soteria implements the [WG-Policy Management Whitepaper](https://github.com/kubernetes/community/blob/c61508a8651fcb49036188410becc36a3750217b/sig-security/policy/kubernetes-policy-management.md) in a data protection context.
   
@@ -20,9 +20,18 @@ However, battle-hardened IT experts will know that there are many additional ris
 - The GM's desire to limit financial impact due to downtime of a revenue generating app
 - The CISO's requirement to have immutablity, a defense against ransomware operators who target destruction of backups.
 
-Data protection policies are in fact time-consuming to prepare and resource-intensive to execute. Fortunately, attendees of this talk can have their cake and eat it too. CIO’s will learn to implement a low code, K8s native means of authoring data protection "guardrails" that can be easily consumed by app developers. For maximum effect, this approach can be implemented at scale with IaC/GitOps approaches, for example with Argo or Flux.
+Data protection policies to mitigate these concerns are in fact time-consuming to prepare and resource-intensive to execute at cloud-scale.
+
+Traditional "ITIL" processes require lots of sign off and checks and balances to ensure IT has reviewed risks and has central control over what is deployed. The current competitive environment enabled by cloud demands more decentralized approach: to leverage self service for agility purposes and automated policy checks to mitigate risk. This has been true with autonomous operations like GitOps or Infrastructure as Code now leveraging more and more "Shift Left" security policies and scanning for misconfiguration in code.
+
+Soteria borrows from the Cloud Native Posture Management approach to implement "Shift Left" policy "guardrails" that can be easily consumed by anyone, including app developers. These policies restrict deployment of non-compliant configurations and prevents launching ill-prepared code into production, thereby mitigating risk.
+
+How Soteria works is that CIO/CISOs can define controls as a set of Cloud Native Data Protection Policies, perform audit & enforcement while enabling developers to move rapidly by providing real-time feedback how to comply.
 
 ## Kyverno Admission Implementation with Kasten K10
+
+Kyverno approaches cloud native policies designed with Kubernetes in mind.  All policies are familiar Kubernetes Native API and for anyone who has worked with custom resources, will feel like defining policies is second nature.  Kyverno cna also create "generation" policies which help perform automation. This is useful to automate additional deployments conditional on a passing policy audit. Kyverno is the engine of choice for every day practicioners. 
+
 **Prerequisites:** 
 - Install Kyverno
   - helm repo add kyverno https://kyverno.github.io/kyverno/
@@ -41,7 +50,7 @@ Data protection policies are in fact time-consuming to prepare and resource-inte
 
 **Demonstration and Expected Output**  
 
-1. Add Kyverno access rights to perform the demonstration. These policies enforceand generate Kasten K10 K8s CRDs. The enforcement policy looks for the a 'dataprotection' label name of a policy pre-vetted by Senior IT Leadership.  Since these label names are already pre-vetted, we'll go ahead and auto generate them whenever a matching resource is deployed correctly.  The gold backup policy RPO/Retention objectives are just an example, but can be freely modified for your purposes.
+1. Add Kyverno access rights to perform the demonstration. These policies enforce and generate Kasten K10 K8s Policy Resources. The enforcement policy looks for a 'dataprotection' label name of a policy pre-vetted by Senior IT Leadership.  Since these label names are already pre-vetted, we'll go ahead and auto generate them whenever a matching resource is deployed correctly.  The gold backup policy RPO/Retention objectives are just an example, but can be freely modified for your purposes.
 
 ```console
 kubectl apply -f kyvernorbac.yaml
@@ -54,7 +63,7 @@ clusterpolicy.kyverno.io/prod-backup-enforce-policy created
 clusterpolicy.kyverno.io/generate-gold-backup-policy created
 ```
 
-2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
+2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrect, highly scalable cloud native operations that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
 
 ```console
 kubectl apply -f nginx-deployment-invalid.yaml 
@@ -82,7 +91,7 @@ deployment.apps/nginx-deployment created
 ```
 4. Lastly (GUI not show) - open up the K10 GUI and review the auto-generated backup policy.
 
-5. (Optional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed withthe describe command.
+5. (Optional) Review the entire compliance history on your policies. If there are any enforcement errors to review, they will be listed with the describe command.
 
 ```console
 kubectl get policyreport -A                                       
@@ -98,11 +107,13 @@ olm         polr-ns-olm         54     3      0      0       0      5d2h
 describe polr polr-ns-nginx | grep "Result: \+fail" -B10
 ```
 
-This concept can be applied to any data protection solution that uses native K8s Resources or CRD's (ie. Velero).
+This concept can be applied to any data protection solution that uses native K8s Resources or CRD's.
 
 Send any and all feedback to **joey.lei@veeam.com**!
 
 ## Open Policy Agent Gatekeeper Admission Implementation
+
+Open Policy Agent is the dominant enforcement policy for cloud native applications.  It is written using a langauge called REGO. While this increases the complexity of authoring policies, this also enables more fine grained control for complex policies. Gatekeeper is the Kubernetes native implementation of OPA. It is the engine of choice for developers.
 
 **Prerequisites:** 
 - Install Gatekeeper (https://open-policy-agent.github.io/gatekeeper/website/docs/install
@@ -118,7 +129,7 @@ Send any and all feedback to **joey.lei@veeam.com**!
 
 **Demonstration and Expected Output**  
 
-1. Apply the _ConstraintTemplate_ and custom reosurce _DataProtectionRequiredLabels_
+1. Apply the _ConstraintTemplate_ and custom reosurce _DataProtectionRequiredLabels_ to create the Gatekeeper policies. This uses a simpler approach to look for required labels in an application definition.
 
 ```console
 kubectl apply -f requiredLabelsConstraintTemplate.yaml
@@ -128,7 +139,7 @@ kubectl apply -f policyConstraintSimpleLabelOnly.yaml
 constrainttemplate.templates.gatekeeper.sh/dataprotectionrequiredlabels created
 dataprotectionrequiredlabels.constraints.gatekeeper.sh/prod-must-have-dp-labels created
 ```
-2. The second step demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
+2. The second step is identical to the Kyverno example. It demonstrates a typical bad behavior, to deploy an application into production without consideration of the data protection compliance policy and let it be someone elses accountability.  This is also a common pattern in monolithic VM protection where a "handoff" to the data protection operations team follows deployment into production. While not technically incorrectly, highly scalable cloud native operaitons that ship frequently, would become severely bottlenecked.  Feedback is given back to the developer or system integrator to correct the application YAML when they try to deploy nginx. In a GitOps context, this would also fail to deploy after check-in, though we would probably want to implement some form of test at code integration as well (example forthcoming).
 
 ```console
 kubectl apply -f nginx-deployment-invalid-missing-labels.yaml 
@@ -138,7 +149,7 @@ namespace/nginx created
 Error from server ([prod-must-have-dp-labels] you must provide labels: {"dataprotection", "immutable"}): error when creating "nginx-deployment-invalid.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [prod-must-have-dp-labels] you must provide labels: {"dataprotection", "immutable"}
 ```
 
-3. We can a more restrictive example and require specific dataprotection label and immutability label to match for example our gold backup policy. With Gatekeeper, the enforcement policy is more customizable due to the fact one needs to code in REGO.  While it makes it longer to get started for a beginner, more complex data protection policies can be enabled vs Kyverno.
+3. We can a more advanced example and require specific dataprotection label and immutability label to match the name of our K10 backdata protection policy and specifically looks for a policy with immutability enabled.
 
 ```console
 kubectl apply -f requireDPPolicyConstraintTemplate.yaml
@@ -161,7 +172,7 @@ Error from server ([dp-policy-must-be-defined] Forbidden immutability policy: no
 [dp-policy-must-be-defined] Forbidden dataprotection policy: notreal
 ```
 
-5. Lastly, we'll a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.  Unlike Kyverno, Gatekeeper does not yet have an ability to generate other custom resources, so other means need to enable the generation of for example Kasten K10 Policy resources.
+5. Lastly, like in the Kyverno example, we'll a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.  Unlike Kyverno, Gatekeeper does not yet have an ability to generate other custom resources, so other means need to enable the generation of for example Kasten K10 Policy resources.
 
 ```console
 kubectl apply -f nginx-deployment.yaml 
