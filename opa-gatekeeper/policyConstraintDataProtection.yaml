@@ -1,0 +1,12 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: RequiredDataProtectionPolicy
+metadata:
+  name: dp-policy-must-be-defined
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"] # monitor only app resources like below
+        kinds: ["StatefulSet", "Deployment"]
+  parameters:
+    policy: "k10" # looks for specific label values
+    immutable: "enabled" # looks for specific label values

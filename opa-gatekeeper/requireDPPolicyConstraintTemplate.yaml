@@ -1,0 +1,37 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: requireddataprotectionpolicy
+spec:
+  crd:
+    spec:
+      names:
+        kind: RequiredDataProtectionPolicy
+      validation:
+        # Schema for the `parameters` field
+        openAPIV3Schema:
+          properties:
+            labels:
+              type: array
+              items: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      # REGO Explanation: https://www.magalix.com/blog/integrating-open-policy-agent-opa-with-kubernetes-a-deep-dive-tutorial?hs_amp=true
+      rego: |
+        package requiredDataProtectionPolicy
+        
+        violation[{"msg": msg, "details": {"Policy should have": required}}] {
+          input.review.object.kind == "Deployment"
+          policy := input.review.object.metadata.labels.dataprotection
+          required := input.parameters.policy
+          not startswith(policy,required)
+          msg := sprintf("Forbidden dataprotection policy: %v", [policy])
+        }
+        
+        violation[{"msg": msg, "details": {"Immutability should have": requiredimmutablity}}] {
+          input.review.object.kind == "Deployment"
+          immutability := input.review.object.metadata.labels.immutable
+          requiredimmutablity := input.parameters.immutable
+          not startswith(immutability,requiredimmutablity)
+          msg := sprintf("Forbidden immutability policy: %v", [immutability])
+        }
