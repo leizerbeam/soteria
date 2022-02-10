@@ -119,6 +119,7 @@ Open Policy Agent is the dominant enforcement policy for cloud native applicatio
 - Install Gatekeeper (https://open-policy-agent.github.io/gatekeeper/website/docs/install
 
 **Explanation of YAML Files:**  
+- dataprotectionpolicy.rego - REGO policy matching the 'requireDPPolicyConstraintTemplate.yaml" for use in CI/CD pipelines
 - requireLabelsConstraintTemplate.yaml - a simple ConstraintTemplate example to require the existence of labels (to be defined in the Constraint itself)
 - policyConstraintSimpleLabelOnly.yaml - A custom Constraint resource to require all "Deployment" and "StatefulSet" resources contain _dataprotection_ and _immutable_ labels
 - requireDPPolicyConstraintTemplate.yaml - an advanced ConstraintTemplate requiring validation of the values inside _dataprotection_ and _immutable_ labels
