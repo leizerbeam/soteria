@@ -1,0 +1,29 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: Enforce Immutable Location Profile
+  annotations:
+    policies.kyverno.io/title: Enforce Immutable Location Profile
+    policies.kyverno.io/category: K10
+    policies.kyverno.io/subject: Profile
+    policies.kyverno.io/description: >-
+      K10 Object Storage Location Profiles store K10 RestorePoints (Backups) for import and export operations.
+      AWS S3 or S3 compatible object storage that supports object lock can generate immutable backups. 
+      Immutability is not enabled by default due to the increased costs of retaining storage. This policy checks that the 
+      Profile contains a 'protectionPeriod' which is the main configuration for immutability. 
+spec:
+  validationFailureAction: enforce
+  rules:
+  - name: check-k10-immutable-profile
+    match:
+      resources:
+        kinds:
+        - config.kio.kasten.io/v1alpha1/Profile
+    validate:
+      message: "Location Profile is not immutable (err: did not configure 'protectionPeriod')"
+      pattern:
+        spec:
+          locationSpec:
+            location:
+              objectStore:
+                protectionPeriod: "?*" # any value determines immutability is enabled (better checking can add the time unit of measure, minutes, hours)
