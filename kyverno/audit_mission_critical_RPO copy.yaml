@@ -1,0 +1,27 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: Enforce Mission Critical RPO
+  annotations:
+    policies.kyverno.io/title: Audit Mission Critical RPO
+    policies.kyverno.io/category: K10
+    policies.kyverno.io/subject: Policy
+    policies.kyverno.io/description: >-
+      K10 Policy resources can be educated to adhere to common Recovery Point Objective (RPO) best practices. 
+      This policy is advising to use an RPO frequency that with hourly granularityif it has the appPriority: Mission Critical
+spec:
+  validationFailureAction: audit  
+  rules:
+  - name: check-k10-policy-mission-critical-rpo
+    match:
+      resources:
+        kinds:
+        - config.kio.kasten.io/v1alpha1/Policy
+        selector:
+          matchLabels:
+            appPriority: Mission Critical
+    validate:
+      message: "Mission Critical RPO frequency should use no shorter than @hourly frequency"
+      pattern:
+        spec:
+          frequency: '@hourly'

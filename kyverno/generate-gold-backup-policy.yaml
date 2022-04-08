@@ -13,8 +13,7 @@ spec:
           - StatefulSet
         selector:
           matchLabels:
-            dataprotection: k10-goldpolicy
-            immutable: enabled
+            dataprotection: k10-goldpolicy # match with a corresponding ClusterPolicy that checks for this label
     generate:
       apiVersion: config.kio.kasten.io/v1alpha1
       kind: Policy
