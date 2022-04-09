@@ -74,7 +74,7 @@ spec:
         # The protection period for immutable backups. Optional.
         # Must be shorter than the bucket default retention
         # period minus 20 days.
-        protectionPeriod: 2
+        
       # When the type above is FileStore. Required.
       # Only one of the location type sections can be specified
       fileStore:
