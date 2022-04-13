@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: whitelist-namespace-for-restore
+  annotations:
+    policies.kyverno.io/title: Block K10 Restore Outside Whitelisted Namespaces
+    policies.kyverno.io/category: K10
+    policies.kyverno.io/subject: RestoreAction
+    policies.kyverno.io/description: >-
+      K10 allows on backup and restore of applications (namespaces) and is designed to be run with full cluster admin permissions.
+      This policy is designed to prevent exfiltration outside trusted namespaces (ie. whitelisted namespaces)
+      Modify the list in the condition below to include your trusted namespaces.
+spec:
+  validationFailureAction: audit
+  background: false
+  rules:
+  - name: block-k10-restore-outside-whitelisted-namespace
+    match:
+      resources:
+        kinds:
+        - actions.kio.kasten.io/v1alpha/RestoreAction
+    validate:
+      message: "Warning! {{request.object.spec.namespaceMapping | values(@)}} is not in the namespace restore whitelist!"
+      deny:
+        conditions:
+          any:
+            - key: "{{request.object.spec.namespaceMapping | values(@)}}"
+              operator: AnyNotIn
+              value:
+              - nginx
