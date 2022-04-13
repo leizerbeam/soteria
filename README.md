@@ -118,6 +118,12 @@ This concept can be applied to any data protection solution that uses native K8s
       This policy is advising to use an RPO frequency that with hourly granularity if it has the appPriority: Mission Critical
 - enforce-namespace-whitelisting.yaml - K10 allows on backup and restore of applications (namespaces) and is designed to be run with full cluster admin permissions.      This policy is designed to prevent exfiltration outside trusted namespaces (ie. whitelisted namespaces)
 
+## Test Manifests
+- backup-export-policy.yaml - a compliant K10 Policy with the above advanced policies 
+- immutable-location-profile.yaml - a non-compliant K10 Profile (protectionPeriod is commented out)
+- nginx-deployment-invalid.yaml - a non-compliant "app" - missing "immutable: enabled"
+- nginx-deployment.yaml - a compliant "app" - has k10-goldpolicy (pairs with generate policy)
+
 Send any and all feedback to **joey.lei@veeam.com**!
 
 ## Open Policy Agent Gatekeeper Admission Implementation
