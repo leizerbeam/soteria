@@ -40,13 +40,9 @@ Kyverno approaches cloud native policies designed with Kubernetes in mind.  All 
   - helm install kyverno-policies kyverno/kyverno-policies --namespace kyverno
 - Install Data Protection Solution of Choice (ie. [Kasten K10 Install](https://docs.kasten.io/latest/install/install.html))
 
-**Explanation of YAML Files:**  
-- kyvernorbac.yaml - allows Kyverno access rights to perform create, update, delete, list, get operations on Kasten K10 _Policy_ resources
-- prod-backup-enforce-policy.yaml - Creates a Kyverno _ClusterPolicy_ to **enforce** on _Deployments, StatefulSets_ a valid K10 Data Protection Policy with Immutable Backups Enabled
-- dev-backup-audit-policy.yaml - Creates a Kyverno _ClusterPolicy_ to **audit** on _Deployments, StatefulSets_ if developers are testing their applications with K10 Data Protection Policies.
-- generate-gold-backup-policy - Creates a Kyverno _ClusterPolicy_ to **generate** a K10 App-Namespace Scoped _Policy_ called "gold-backup-policy using 24H RPO w/ snapshot retention of 7 dailies, 4 weeklies, 12 monthlies, 7 yearlys and enables snapshot export to an immutable backup target called "immutable-location-profile")
-- nginx-deployment-invalid.yaml - An example nginx _Deployment_ with an invalid data protection policy (fails Kyverno enforcement)
-- nginx-deployment.yaml - A valid nginx _Deployment_ with a "dataprotection: k10-goldpolicy" and "immutable: enabled" labels.  
+**Policy as Code Repos**
+- /kyverno: all Kyverno policies for data protection guardrails
+- /opa-gatekeeper: all Open Policy Agent data protection guardrails
 
 **Demonstration and Expected Output**  
 
@@ -54,12 +50,12 @@ Kyverno approaches cloud native policies designed with Kubernetes in mind.  All 
 
 ```console
 kubectl apply -f kyvernorbac.yaml
-kubectl apply -f prod-backup-enforce-policy.yaml
+kubectl apply -f enforce-data-protection-by-label.yaml
 kubectl apply -f generate-gold-backup-policy.yaml
 ```
 ```console
 clusterrole.rbac.authorization.k8s.io/kyverno:generatecontroller updated
-clusterpolicy.kyverno.io/prod-backup-enforce-policy created
+clusterpolicy.kyverno.io/enforce-data-protection-by-label created
 clusterpolicy.kyverno.io/generate-gold-backup-policy created
 ```
 
@@ -74,10 +70,10 @@ namespace/nginx created
 Error from server: error when creating "nginx-deployment-invalid.yaml": 
 admission webhook "validate.kyverno.svc-fail" denied the request: 
 resource Deployment/nginx/nginx-deployment was blocked due to the 
-following policies prod-backup-enforce-policy: cd-prod-backup-policy: 
+following policies enforce-data-protection-by-label: cd-prod-backup-policy: 
 'validation error: Production Deployments and StatefulSets must have 
 Data Protection Policies with Immutability Enabled (use labels: dataprotection:
-k10-<policyname> and immutable: enabled). Rule cd-prod-backup-policy 
+k10-<policyname> and immutable: enabled). Rule enforce-data-protection-by-label
 failed at path /metadata/labels/immutable/'
 ```
 3. The third step illustrates a correctly defined application YAML that uses the pre-vetted policy label name "k10-goldpolicy" and also correctly uses the "immutable: enabled" label as per Senior IT Leadership's approved data protection policy.
@@ -108,6 +104,19 @@ describe polr polr-ns-nginx | grep "Result: \+fail" -B10
 ```
 
 This concept can be applied to any data protection solution that uses native K8s Resources or CRD's.
+
+## Advanced Kyverno Policies
+- enforce-3-2-1.yaml - The rule of 3-2-1 recommends that you have at least 3 copies of data, on 2 different storage targets, and 1 being "offsite"
+      In K8s/K10, this translates to a StatefulSet (the production PersistentVolumeClaim), a backup (a snapshot of the PVC),
+      and an export to cloud object storage (a cloud copy of the PVC snapshot)
+- enforce-immutable-backup.yaml - K10 Object Storage Location Profiles store K10 RestorePoints (App Backups) for import and export operations.
+      AWS S3 or S3 compatible object storage that supports object lock can store immutable backups. 
+      Immutability is typically not enabled by default due to the increased costs of retaining storage. 
+      This policy checks that the Profile contains a 'protectionPeriod' which is the main configuration for K10 immutability. 
+- enforce-minimum-retentions.yaml - K10 Policy resources can be validated to adhere to common compliance retention standards. This policy demonstrates "mutation" which modifies incoming API requests before being processed by the K8s API Server
+- enforce-mission-critical-rpo.yaml - K10 Policy resources can be educated to adhere to common Recovery Point Objective (RPO) best practices. 
+      This policy is advising to use an RPO frequency that with hourly granularity if it has the appPriority: Mission Critical
+- enforce-namespace-whitelisting.yaml - K10 allows on backup and restore of applications (namespaces) and is designed to be run with full cluster admin permissions.      This policy is designed to prevent exfiltration outside trusted namespaces (ie. whitelisted namespaces)
 
 Send any and all feedback to **joey.lei@veeam.com**!
 
