@@ -18,7 +18,7 @@ spec:
     match:
       resources:
         kinds:
-        - actions.kio.kasten.io/v1alpha/RestoreAction
+        - actions.kio.kasten.io/v1alpha1/RestoreAction
     validate:
       message: "Warning! {{request.object.spec.namespaceMapping | values(@)}} is not in the namespace restore whitelist!"
       deny:

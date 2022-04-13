@@ -5,7 +5,7 @@ metadata:
   annotations:
     policies.kyverno.io/title: Enforce By Label
     policies.kyverno.io/category: K10
-    policies.kyverno.io/subject: StatefulSet
+    policies.kyverno.io/subject: Deployment, StatefulSet
     policies.kyverno.io/description: >-
       Check the dataprotection labels for production Deployments and StatefulSet have a named K10 Policy.
       Use in combination with generate ClusterPolicy to generate a specific K10 Policy by name.
@@ -19,10 +19,9 @@ spec:
         - Deployment
         - StatefulSet
     validate:
-      message: "Production Deployments and StatefulSets must have Data Protection Policies assigned (use labels: dataprotection: k10-<policyname>)"
+      message: "Deployments and StatefulSets that specify 'dataprotection' label must have a valid k10-?* name (use labels: dataprotection: k10-<policyname>)"
       pattern:
         metadata:
           labels:
-            =(purpose): production
-            dataprotection: k10-?*
-            immutable: enabled
+            (purpose): production
+            dataprotection: "k10-*"
