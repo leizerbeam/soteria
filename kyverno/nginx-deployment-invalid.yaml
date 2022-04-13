@@ -4,8 +4,6 @@ metadata:
   name: nginx
   labels:
     name: nginx
-    purpose: production
-    dataprotection: none # not an approved policy!!
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -15,7 +13,7 @@ metadata:
   labels:
     app: nginx
     purpose: production
-    dataprotection: none # not an approved policy!!
+    dataprotection: none # invalid named K10 Policy!!
 spec:
   replicas: 3
   selector:
