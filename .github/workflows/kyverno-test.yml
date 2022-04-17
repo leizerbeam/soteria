@@ -39,10 +39,10 @@ jobs:
         with:
           # Github token
           token: ${{ github.token }}
-          resource-files: # optional, default is 
+          resource-files: |
             kyverno/backup-export-policy.yaml
           # Kyverno-Policy-Files
-          policy-files: 
+          policy-files: |
             kyverno/enforce-3-2-1.yaml
             kyverno/enforce-data-protection-by-label.yaml
             kyverno/enforce-minimum-retentions.yaml
@@ -55,10 +55,10 @@ jobs:
         with:
           # Github token
           token: ${{ github.token }}
-          resource-files: # optional, default is 
+          resource-files: |
             kyverno/immutable-location-profile.yaml
           # Kyverno-Policy-Files
-          policy-files: 
+          policy-files: |
             kyverno/enforce-immutable-backup.yaml
 
       - name: kyverno-test-label
@@ -68,8 +68,8 @@ jobs:
         with:
           # Github token
           token: ${{ github.token }}
-          resource-files: # optional, default is 
+          resource-files: |
             kyverno/nginx-deployment.yaml
           # Kyverno-Policy-Files
-          policy-files: 
+          policy-files: |
             kyverno/enforce-data-protection-by-label.yaml
