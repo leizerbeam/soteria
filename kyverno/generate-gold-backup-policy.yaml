@@ -2,6 +2,13 @@ apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: generate-gold-backup-policy
+  annotations:
+    policies.kyverno.io/title: Generate Gold Backup Policy
+    policies.kyverno.io/category: K10
+    policies.kyverno.io/subject: Policy
+    policies.kyverno.io/description: >-
+      Generate a backup policy for any Deployment or StatefulSet that adds the labels "dataprotection: k10-goldpolicy"
+      This policy works best to decide the data protection objectives and simply assign backup via application labels.
 spec:
   background: false
   rules:

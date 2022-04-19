@@ -11,7 +11,7 @@ metadata:
       This policy is designed to prevent exfiltration outside trusted namespaces (ie. whitelisted namespaces)
       Modify the list in the condition below to include your trusted namespaces.
 spec:
-  validationFailureAction: audit
+  validationFailureAction: enforce
   background: false
   rules:
   - name: block-k10-restore-outside-whitelisted-namespace
@@ -20,11 +20,11 @@ spec:
         kinds:
         - actions.kio.kasten.io/v1alpha1/RestoreAction
     validate:
-      message: "Warning! {{request.object.spec.namespaceMapping | values(@)}} is not in the namespace restore whitelist!"
+      message: "Warning! {{request.object.spec.targetNamespace}} is not in the namespace restore whitelist!"
       deny:
         conditions:
           any:
-            - key: "{{request.object.spec.namespaceMapping | values(@)}}"
+            - key: "{{request.object.spec.targetNamespace}}"
               operator: AnyNotIn
               value:
               - nginx
