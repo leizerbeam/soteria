@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kyverno:generatecontroller
+  name: kyverno:generate
 rules:
 - apiGroups:
   - '*'
@@ -15,15 +15,30 @@ rules:
   - clusterroles
   - rolebindings
   - clusterrolebindings
-  - policies
-  - profiles
-  - actions
   verbs:
   - create
   - update
   - delete
   - list
   - get
+
+- apiGroups:
+  - config.kio.kasten.io
+  - actions.kio.kasten.io
+  - apps.kio.kasten.io 
+
+  resources:
+  - policies
+  - profiles
+  - actions
+  
+  verbs:
+  - create
+  - update
+  - delete
+  - list
+  - get
+
 - apiGroups:
   - '*'
   resources:
