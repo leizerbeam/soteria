@@ -15,49 +15,53 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  kyverno-job:
+  #kyverno-job:
+  #  runs-on: ubuntu-latest
+  #  name: Run kyverno
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v2
+  #    - name: Validate policy
+  #      uses: gbaeke/kyverno-cli@v1
+  #      with:
+  #        command: |
+  #          kyverno test ./kyverno
+            
+  kyverno-validate:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    name: Run kyverno
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Validate policy
-        uses: gbaeke/kyverno-cli@v1
-        with:
-          command: |
-            kyverno test ./kyverno
-            
-  #kyverno-validate:
-    # The type of runner that the job will run on
-    #runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    #steps:
-      #- name: Checkout
-      #  uses: actions/checkout@v2
         
-      #- uses: actions/checkout@v2
-      #  name: Checkout kyverno
-      #  with:
-      #    repository: leizerbeam/soteria
-      #    ref: main
-      #    path: kyverno
+      - uses: actions/checkout@v2
+        name: Checkout kyverno
+        with:
+          repository: leizerbeam/soteria
+          ref: main
+          path: kyverno
           
-      #- name: kyverno-test-policy
+      - name: List files
+        run: ls -l kyverno  
+        
+      - name: kyverno-test-policy
         # You may pin to the exact commit or the version.
         # uses: ckotzbauer/kyverno-test-action@1c306c7062d34cf7648b831f8a28af7ecb7a13ae
-      #  uses: ckotzbauer/kyverno-test-action@v2
-      #  with:
+        uses: ckotzbauer/kyverno-test-action@v2
+        with:
           # Github token
-      #    token: ${{ github.token }}
-      #    resource-files: |
-      #      kyverno/backup-export-policy.yaml
-          # Kyverno-Policy-Files
-      #    policy-files: |
-      #      kyverno/enforce-3-2-1.yaml
-      #      kyverno/enforce-data-protection-by-label.yaml
-      #      kyverno/enforce-minimum-retentions.yaml
-      #      kyverno/enforce-mission-critical-rpo.yaml
+          token: ${{ github.token }}
+          # Enter all application manifests here (Location Profiles, Data Protection Policies, Application Manifests)
+          resource-files: |
+            kyverno/backup-export-policy.yaml
+          # Test that the resource meets all required data protection policies
+          policy-files: |
+            kyverno/enforce-3-2-1.yaml
+            kyverno/enforce-data-protection-by-label.yaml
+            kyverno/enforce-minimum-retentions.yaml
+            kyverno/enforce-mission-critical-rpo.yaml
             
       #- name: kyverno-test-immutable
         # You may pin to the exact commit or the version.
