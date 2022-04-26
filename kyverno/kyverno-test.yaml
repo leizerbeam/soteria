@@ -1,0 +1,8 @@
+name: kyverno_data_protection_tests
+policies:
+  - kyverno/enforce-3-2-1.yaml
+  - kyverno/enforce-data-protection-by-label.yaml
+  - kyverno/enforce-minimum-retentions.yaml
+  - kyverno/enforce-mission-critical-rpo.yaml
+resources:
+  - kyverno/backup-export-policy.yaml
