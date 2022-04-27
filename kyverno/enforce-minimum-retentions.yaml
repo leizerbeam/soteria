@@ -1,7 +1,7 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: Enforce Minimum Retention
+  name: enforce-k10-policy-minimum-retention
   annotations:
     policies.kyverno.io/title: Enforce Minimum Retention
     policies.kyverno.io/category: K10
