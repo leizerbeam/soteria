@@ -67,4 +67,4 @@ jobs:
 
       - name: Test Policy
         run: |
-          go run cmd/cli/kubectl-kyverno/main.go test .
+          kyverno test .
