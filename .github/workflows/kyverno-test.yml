@@ -6,27 +6,15 @@ name: kyverno-test
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [ test ]
   pull_request:
-    branches: [ main ]
+    branches: [ test ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  #kyverno-job:
-  #  runs-on: ubuntu-latest
-  #  name: Run kyverno
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v2
-  #    - name: Validate policy
-  #      uses: gbaeke/kyverno-cli@v1
-  #      with:
-  #        command: |
-  #          kyverno test ./kyverno
-            
+jobs:            
   kyverno-validate:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -35,13 +23,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
-    #- uses: actions/checkout@v2
-      #  name: Checkout kyverno
-      #  with:
-      #    repository: leizerbeam/soteria
-      #    ref: main
-      #    path: kyverno 
         
       - name: kyverno-test-policy
         # You may pin to the exact commit or the version.
@@ -56,15 +37,7 @@ jobs:
           # Test that the resource meets all required data protection policies
           policy-files: |
             kyverno/enforce-3-2-1.yaml
-            #kyverno/enforce-data-protection-by-label.yaml
-            #kyverno/enforce-minimum-retentions.yaml
-            #kyverno/enforce-mission-critical-rpo.yaml
     
-      - name: Set up Go 
-        uses: actions/setup-go@f6164bd8c8acb4a71fb2791a8b6c4024ff038dab # v3.0.0
-        with:
-          go-version: 1.17
-
-      - name: Test Policy
+      - name: Test Kyverno Policies
         run: |
           kyverno test .
