@@ -36,15 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      #- uses: actions/checkout@v2
+    #- uses: actions/checkout@v2
       #  name: Checkout kyverno
       #  with:
       #    repository: leizerbeam/soteria
       #    ref: main
-      #    path: kyverno
-          
-      - name: List files
-        run: ls -l kyverno  
+      #    path: kyverno 
         
       - name: kyverno-test-policy
         # You may pin to the exact commit or the version.
@@ -59,9 +56,9 @@ jobs:
           # Test that the resource meets all required data protection policies
           policy-files: |
             kyverno/enforce-3-2-1.yaml
-            kyverno/enforce-data-protection-by-label.yaml
-            kyverno/enforce-minimum-retentions.yaml
-            kyverno/enforce-mission-critical-rpo.yaml
+            #kyverno/enforce-data-protection-by-label.yaml
+            #kyverno/enforce-minimum-retentions.yaml
+            #kyverno/enforce-mission-critical-rpo.yaml
             
       #- name: kyverno-test-immutable
         # You may pin to the exact commit or the version.
