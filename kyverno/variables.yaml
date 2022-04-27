@@ -1,0 +1,22 @@
+variables: variables.yaml
+results:
+- policy: enforce-3-2-1-backup-policy
+  rule: enforce-3-2-1-backup-policy
+  resource: sample-custom-backup-policy
+  kind: Policy
+  result: pass
+- policy: enforce-data-protection-by-label
+  rule: enforce-data-protection-by-label
+  resource: sample-custom-backup-policy
+  kind: Policy
+  result: pass
+- policy: enforce-k10-policy-minimum-retention
+  rule: enforce-k10-policy-minimum-retention
+  resource: sample-custom-backup-policy
+  kind: Policy
+  result: pass 
+- policy: enforce-mission-critical-rpo
+  rule: enforce-mission-critical-rpo
+  resource: sample-custom-backup-policy
+  kind: Policy
+  result: pass 

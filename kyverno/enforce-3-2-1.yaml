@@ -1,7 +1,7 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: enforce-321-backup-policy
+  name: enforce-3-2-1-backup-policy
   annotations:
     policies.kyverno.io/title: Enforce 3-2-1 Backup Policy
     policies.kyverno.io/category: K10
